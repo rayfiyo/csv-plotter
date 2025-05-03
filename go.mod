@@ -1,4 +1,4 @@
-module github.com/rayfiyo/plotter
+module github.com/rayfiyo/csv-plotter
 
 go 1.24.2
 
