@@ -26,8 +26,22 @@ func (Writer) Write(baseName string, data domain.DataSet) error {
 
 	// 軸範囲
 	minX, maxX, minY, maxY := data.Bounds()
-	p.X.Min, p.X.Max = minX, maxX
-	p.Y.Min, p.Y.Max = minY, maxY
+
+	// 余白を 5 % 追加
+	dx := maxX - minX
+	dy := maxY - minY
+	const pad = 0.05 // 5 %
+	if dx == 0 {
+		dx = 1
+	} // 全点同値でも 1px 分は空ける
+	if dy == 0 {
+		dy = 1
+	}
+
+	p.X.Min = minX - dx*pad
+	p.X.Max = maxX + dx*pad
+	p.Y.Min = minY - dy*pad
+	p.Y.Max = maxY + dy*pad
 
 	// ティッカー選定
 	p.X.Tick.Marker = chooseTicker(maxX - minX)
