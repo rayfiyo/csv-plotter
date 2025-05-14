@@ -1,10 +1,8 @@
-// Domain を Plot にして PNG 保存する、書き込みの責務
-// I/O に依存する実装なので internal/adapter に配置
+//  各設定を反映した書き込み（プロット）処理
 
 package plot_writer
 
 import (
-	"fmt"
 	"path/filepath"
 
 	"gonum.org/v1/plot"
@@ -14,25 +12,10 @@ import (
 	"github.com/rayfiyo/csv-plotter/internal/domain"
 )
 
-// Writer は DataSet → PNG を担当
 type Writer struct{}
 
-// New は Writer のコンストラクタ
 func New() *Writer { return &Writer{} }
 
-// threeTicks は最小・中央値・最大値のみ表示する Ticker
-type threeTicks struct{}
-
-func (threeTicks) Ticks(min, max float64) []plot.Tick {
-	mid := (min + max) / 2
-	return []plot.Tick{
-		{Value: min, Label: fmt.Sprintf("%.0f", min)},
-		{Value: mid, Label: fmt.Sprintf("%.0f", mid)},
-		{Value: max, Label: fmt.Sprintf("%.0f", max)},
-	}
-}
-
-// Write は baseName.png へ散布図を保存する
 func (Writer) Write(baseName string, data domain.DataSet) error {
 	pts := make(plotter.XYs, len(data))
 	for i, p := range data {
@@ -40,15 +23,19 @@ func (Writer) Write(baseName string, data domain.DataSet) error {
 	}
 
 	p := plot.New()
-	p.X.Tick.Marker = threeTicks{}
-	p.Y.Tick.Marker = threeTicks{}
 
+	// 軸範囲
 	minX, maxX, minY, maxY := data.Bounds()
 	p.X.Min, p.X.Max = minX, maxX
 	p.Y.Min, p.Y.Max = minY, maxY
 
-	p.Add(plotter.NewGrid())
+	// ティッカー選定
+	p.X.Tick.Marker = chooseTicker(maxX - minX)
+	p.Y.Tick.Marker = chooseTicker(maxY - minY)
 
+	// p.Add(plotter.NewGrid()) // グリッド線
+
+	// プロット
 	s, err := plotter.NewScatter(pts)
 	if err != nil {
 		return err
