@@ -26,7 +26,10 @@ func (Reader) Read(path string) (domain.DataSet, error) {
 	}
 	defer f.Close()
 
-	recs, err := csv.NewReader(f).ReadAll()
+	r := csv.NewReader(f)
+	r.Comment = '#'           // コメント行を無視
+	r.TrimLeadingSpace = true // フィールドの頭にある空白を除外（1, 2 をうまく処理）
+	recs, err := r.ReadAll()
 	if err != nil {
 		return nil, err
 	}
