@@ -10,9 +10,11 @@ import (
 
 func chooseTicker(rng float64) plot.Ticker {
 	switch {
-	case rng <= 50:
-		return StepTicker{Minor: 4, Major: 10}
-	case rng <= 500:
+	case rng <= 10:
+		return StepTicker{Minor: 1, Major: 5}
+	case rng <= 100:
+		return StepTicker{Minor: 5, Major: 10}
+	case rng <= 2000:
 		return StepTicker{Minor: 50, Major: 100}
 	default:
 		// “いい感じ”の値を自動で算出 (Renard 系)
