@@ -10,6 +10,8 @@ import (
 
 func chooseTicker(rng float64) plot.Ticker {
 	switch {
+	case rng <= 5:
+		return StepTicker{Minor: 0.5, Major: 1}
 	case rng <= 10:
 		return StepTicker{Minor: 1, Major: 5}
 	case rng <= 100:
